@@ -35,12 +35,13 @@ import mobile.wsmb2024.a08_module2.viewModel.UserViewModel
 fun Profile(userViewModel: UserViewModel, navController: NavController) {
 
     LaunchedEffect(key1 = true) {
-//        userViewModel.retrieveUser()
+
     }
 
     var isValid by remember { (mutableStateOf(false)) }
-    val user = userViewModel.userData
-
+    var isError by remember { (mutableStateOf(true)) }
+    var isEdit by remember { (mutableStateOf(false)) }
+    var userViewModel = userViewModel.userData
     var password by remember {
         mutableStateOf("")
     }
@@ -71,51 +72,82 @@ fun Profile(userViewModel: UserViewModel, navController: NavController) {
                 ) {
                     AsyncImage(
                         contentScale = ContentScale.Crop,
-                        model = user.photo, contentDescription = "profile",
+                        model = userViewModel.photo, contentDescription = "profile",
                         modifier = Modifier
                             .size(150.dp)
                             .clip(RoundedCornerShape(50))
                             .border(1.dp, Color.Black, CircleShape)
-
                     )
-                    Text(text = "Name: ${user.name}")
-                    Text(text = "IC: ${user.ic}")
-                    Text(text = "Email: ${user.email}")
-                    Text(text = "Gender: ${user.gender}")
-                    Text(text = "Phone: ${user.phone}")
-                    Text(text = "Address: ${user.address}")
+                    OutlinedTextField(
+                        enabled = isEdit,
+                        label = { Text(text = "Name") },
+                        value = userViewModel.name,
+                        onValueChange = { userViewModel.name = it })
+                    OutlinedTextField(
+                        enabled = isEdit,
+                        label = { Text(text = "IC") },
+                        value = userViewModel.ic,
+                        onValueChange = { userViewModel.ic = it })
+                    OutlinedTextField(
+                        enabled = isEdit,
+                        label = { Text(text = "Email") },
+                        value = userViewModel.email,
+                        onValueChange = { userViewModel.email = it })
+                    OutlinedTextField(
+                        enabled = isEdit,
 
-                    if (user.isDriver) {
-                        val text = "Driver"
-                        Text(text = "Status: $text")
-                        Text(text = "Car Model: ${user.model}")
-                        Text(text = "Car Capacity: ${user.capacity}")
-                        Text(text = "Special Feature: ${user.special}")
-                    } else {
-                        val text = "Rider"
-                        Text(text = "Status: $text")
-                    }
-
+                        label = { Text(text = "Gender") },
+                        value = userViewModel.gender,
+                        onValueChange = { userViewModel.gender = it })
+                    OutlinedTextField(
+                        enabled = isEdit,
+                        label = { Text(text = "Phone") },
+                        value = userViewModel.phone,
+                        onValueChange = { userViewModel.phone = it })
+                    OutlinedTextField(
+                        enabled = isEdit,
+                        label = { Text(text = "Address") },
+                        value = userViewModel.address,
+                        onValueChange = { userViewModel.address = it })
                 }
             }
         }
     } else {
         Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(56.dp),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(text = "Enter Password For Verification")
             OutlinedTextField(
+                isError = !isError,
+                supportingText = {
+                    if (!isError) {
+                        Text(text = "Wrong Password!", color = Color.Red)
+                    }
+                },
                 label = { Text(text = "Password") },
                 value = password, onValueChange = { password = it })
-            Button(onClick = {
-                if (password == user.password) {
-                    isValid = true
-                }
-            }) {
+            Button(
+                modifier = Modifier
+                    .wrapContentHeight()
+                    .fillMaxWidth()
+                    .padding(0.dp),
+                shape = RoundedCornerShape(10),
+                onClick = {
+                    if (password == userViewModel.password) {
+                        isValid = true
+                        isError = true
+                    } else {
+                        isValid = false
+                        isError = false
+                    }
+                }) {
                 Text(text = "Submit")
             }
+
         }
     }
 }

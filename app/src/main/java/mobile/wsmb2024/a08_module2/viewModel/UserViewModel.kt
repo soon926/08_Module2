@@ -90,24 +90,34 @@ class UserViewModel : ViewModel() {
     }
 
 
-    fun signIn(navController: NavController) {
-        auth.signInWithEmailAndPassword(email, password)
-            .addOnFailureListener {
-                loginErr = "Wronf Email/Password."
-            }
-            .addOnSuccessListener {
-                navController.navigate(Navigate.Ride.name)
-            }
-    }
-
     fun getUserData(userId: String) = CoroutineScope(Dispatchers.IO).launch {
-        var collection = db.collection("User")
-        var userRef = collection.document(userId).get().await()
+        val userRef =
+            db.collection("User").document(userId).get().await()
         if (userRef.exists()) {
             val user = userRef.toObject<UserUiState>()
-            user.let {
-                userData = it!!
-            }
+            user?.let { userData = it }
         }
     }
+
+    fun signIn(navController: NavController) {
+
+        if (email != "" && password != "") {
+            auth.signInWithEmailAndPassword(email, password)
+                .addOnFailureListener {
+                    errorLogin = "Wrong Email/Password."
+                    Log.d("test", "fail")
+
+                }
+                .addOnSuccessListener {
+                    navController.navigate(Navigate.Ride.name)
+                }
+        } else {
+            errorLogin = "Wrong Email/Password."
+        }
+    }
+
+    fun signOut() {
+        auth.signOut()
+    }
+
 }

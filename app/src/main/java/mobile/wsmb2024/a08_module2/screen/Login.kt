@@ -49,7 +49,8 @@ fun Login(
 ) {
     var showPassword by remember { mutableStateOf(false) }
     val passwordVisualTransformation = remember { PasswordVisualTransformation() }
-
+    var isValid by remember { (mutableStateOf(false)) }
+    var isError by remember { (mutableStateOf(true)) }
 
     Column(
         modifier = Modifier
@@ -140,13 +141,13 @@ fun Login(
         Spacer(modifier = Modifier.height(8.dp))
         Text(
             color = Color.Black,
-            text = "Forget Pasword?",
+            text = "Forget Password?",
             modifier = Modifier.clickable(
                 onClick = { navController.navigate(Navigate.Register.name) })
         )
         Text(
             color = Color.Red,
-            text = userViewModel.errorLogin
+            text = userViewModel.errorLogin,
 
         )
         Spacer(modifier = Modifier.weight(1f))

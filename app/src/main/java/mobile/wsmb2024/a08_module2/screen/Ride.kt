@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
@@ -51,6 +53,8 @@ import mobile.wsmb2024.a08_module2.viewModel.UserViewModel
 import java.text.DateFormat
 import java.text.ParsePosition
 import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.time.LocalTime
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -62,13 +66,16 @@ fun Ride(
 ) {
 
     LaunchedEffect(key1 = true) {
-        rideViewModel.retrieveRide()
-    }
+        rideViewModel.rideListActive.clear()
+        rideViewModel.retrieveRideActive()
 
+    }
+    rideViewModel.userData = userViewModel.userData
 
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     ModalNavigationDrawer(
+        drawerState = drawerState,
         drawerContent = {
             ModalDrawerSheet {
                 Text("Menu", modifier = Modifier.padding(16.dp), fontSize = 24.sp)
@@ -86,22 +93,11 @@ fun Ride(
                 NavigationDrawerItem(
                     icon = {
                         Icon(
-                            imageVector = Icons.Default.Animation,
-                            contentDescription = "My Ride"
-                        )
-                    },
-                    label = { Text(text = "My Profile", fontSize = 16.sp) },
-                    selected = false,
-                    onClick = { navController.navigate(Navigate.Profile.name) }
-                )
-                NavigationDrawerItem(
-                    icon = {
-                        Icon(
                             imageVector = Icons.Default.History,
-                            contentDescription = "Profile"
+                            contentDescription = "His"
                         )
                     },
-                    label = { Text(text = "All Ride History", fontSize = 16.sp) },
+                    label = { Text(text = "Ride History", fontSize = 16.sp) },
                     selected = false,
                     onClick = {
                         navController.navigate(Navigate.RideHistory.name)
@@ -111,13 +107,14 @@ fun Ride(
                     icon = {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.Logout,
-                            contentDescription = "Profile"
+                            contentDescription = "Logout"
                         )
                     },
                     label = { Text(text = "Logout", fontSize = 16.sp) },
                     selected = false,
                     onClick = {
-                        navController.navigate(Navigate.RideHistory.name)
+                        userViewModel.signOut()
+                        navController.navigate(Navigate.Login.name)
                     }
                 )
             }
@@ -152,72 +149,70 @@ fun Ride(
                     .padding(it)
                     .fillMaxSize()
             ) {
-                var ride = RideUiState()
-                var rideId: String = "rideId"
-                var driver: UserUiState = UserUiState()
-                var date: String = "date"
-                var time: String = "time"
-                var origin: String = "origin"
-                var destination: String = "des"
-                var fare: String = "fare"
 
-                var rider: UserUiState = UserUiState()
-                var riderList: ArrayList<UserUiState> = ArrayList<UserUiState>()
-
-
-                ElevatedCard(
-                    onClick = {},
-                    modifier = Modifier
-                        .padding(8.dp)
-                        .fillMaxWidth()
-                ) {
-                    Row {
-                        AsyncImage(
-                            modifier = Modifier.size(124.dp),
-                            contentScale = ContentScale.Crop,
-
-                            model = "https://firebasestorage.googleapis.com/v0/b/module-7c2fc.appspot.com/o/profile%2F0409260605.jpg?alt=media&token=bf1d096f-5e89-4e46-8647-4de674234fc1",
-                            contentDescription = "",
-                        )
-                        Column(
+                LazyColumn {
+                    items(rideViewModel.rideListActive) {
+                        ElevatedCard(
+                            onClick = {/*TODO*/ },
                             modifier = Modifier
                                 .padding(8.dp)
                                 .fillMaxWidth()
                         ) {
-                            Text(
-                                text = "Driver Name: ${ride.driver.name}",
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                            Text(
-                                text = "Origin: ${ride.origin}", maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                            Text(
-                                text = "Destination: ${ride.destination}", maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                            Text(
-                                text = "Date: ${ride.date} ${ride.time}", maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                            Text(
-                                text = "1",
-//                                text = "Remaining Seat: ${ride.driver.capacity.toInt()- ride.riderList.size - 1 } ",
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
+                            Row {
+                                AsyncImage(
+                                    modifier = Modifier.size(124.dp),
+                                    contentScale = ContentScale.Crop,
 
+                                    model = it.driver.photo,
+                                    contentDescription = "",
+                                )
+                                Column(
+                                    modifier = Modifier
+                                        .padding(8.dp)
+                                        .fillMaxWidth()
+                                ) {
+                                    Text(
+                                        text = "Driver Name: ${it.driver.name}",
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                    Text(
+                                        text = "Origin: ${it.origin}", maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                    Text(
+                                        text = "Destination: ${it.destination}", maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                    Text(
+                                        text = "Date: ${it.date} ${it.time}", maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                    Text(
+                                        text = "",
+//                                        text = "Remaining Seat: ${it.driver.capacity.toInt() - it.riderList.size - 1} ",
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+
+                                }
+                            }
+                            Button(
+                                modifier = Modifier
+                                    .wrapContentHeight()
+                                    .fillMaxWidth()
+                                    .padding(8.dp),
+                                shape = RoundedCornerShape(10),
+                                onClick = {
+                                    rideViewModel.joinRide(
+                                        ride = it,
+                                        userViewModel.userData
+                                    )
+                                }) {
+                                Text(text = "Join Ride")
+
+                            }
                         }
-                    }
-                    Button(
-                        modifier = Modifier
-                            .wrapContentHeight()
-                            .fillMaxWidth()
-                            .padding(8.dp),
-                        shape = RoundedCornerShape(10),
-                        onClick = { /*TODO*/ }) {
-                        Text(text = "Join Ride")
                     }
                 }
             }
