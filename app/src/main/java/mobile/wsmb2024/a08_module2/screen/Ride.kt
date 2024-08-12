@@ -14,6 +14,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.Animation
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.Button
@@ -68,7 +69,6 @@ fun Ride(
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     ModalNavigationDrawer(
-        gesturesEnabled = false,
         drawerContent = {
             ModalDrawerSheet {
                 Text("Menu", modifier = Modifier.padding(16.dp), fontSize = 24.sp)
@@ -77,6 +77,17 @@ fun Ride(
                         Icon(
                             imageVector = Icons.Default.AccountCircle,
                             contentDescription = "Profile"
+                        )
+                    },
+                    label = { Text(text = "My Profile", fontSize = 16.sp) },
+                    selected = false,
+                    onClick = { navController.navigate(Navigate.Profile.name) }
+                )
+                NavigationDrawerItem(
+                    icon = {
+                        Icon(
+                            imageVector = Icons.Default.Animation,
+                            contentDescription = "My Ride"
                         )
                     },
                     label = { Text(text = "My Profile", fontSize = 16.sp) },
@@ -208,10 +219,7 @@ fun Ride(
                         onClick = { /*TODO*/ }) {
                         Text(text = "Join Ride")
                     }
-
-
                 }
-                var test = "28/08/2024"
             }
         }
     }
